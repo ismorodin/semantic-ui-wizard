@@ -15,4 +15,19 @@ $(function () {
           });
           wizard.init();
 });
+
+<div class="five wide column" id="wizard-container"></div>
+    <div class="ten wide column">
+        <div id="step_one" class="wizard-step-container" data-wiz-title="Тип задачи" data-wiz-icon-class="tasks"
+             data-wiz-desc="Выберите тип задачи">
+      
+        </div>
+        <div id="step_two" class="wizard-step-container" data-wiz-title="Сроки" data-wiz-icon-class="calendar"
+             data-wiz-desc="Выберите временный параметры">       
+        </div>
+        <div id="step_three" class="wizard-step-container" data-wiz-title="Описание" data-wiz-icon-class="content" data-wiz-desc="Описание задачи">
+          
+        </div>
+        <div class="wizard-buttons"></div>
+    </div>
 ```
