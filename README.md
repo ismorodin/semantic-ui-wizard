@@ -1,4 +1,11 @@
-semantic-ui-wizard
+#Wizard for Semantic-UI > 1.0#
 ==================
-
-semantic-ui-wizard form
+##How use:##
+```
+$(function () {
+  var wizard = new WizardModule({
+    idForm: 'task-form'
+  });
+  wizard.init(); //inicialized wizard
+});
+```
