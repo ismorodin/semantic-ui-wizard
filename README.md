@@ -4,8 +4,14 @@
 ```
 $(function () {
   var wizard = new WizardModule({
-    idForm: 'task-form'
-  });
-  wizard.init(); //inicialized wizard
+              idForm: 'task-form',
+              callable: {
+                  beforeInit: function (event, obj) {
+                  },
+                  afterInit:function(event,obj){
+                  }
+              }
+          });
+          wizard.init();
 });
 ```
