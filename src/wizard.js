@@ -2,12 +2,29 @@
  * Wizard Module For semantic-ui
  */
 var WizardModule = (function () {
+    var _events = {
+        "beforeNextStep": 'beforeNextStep',
+        "afterNextStep": "afterNextStep",
+        "beforePrevStep": 'beforePrevStep',
+        "afterPrevStep": "afterPrevStep",
+        "beforeInit": "beforeInit",
+        "afterInit": "afterInit"
+    };
+    var deferredArray = function () {
+        var array = [];
+        array.add = function (callback) {
+            this.push(new $.Deferred(callback));
+        };
+        return array;
+    };
+    var deferreds = deferredArray();
     var cursor = 0;//default cursor item
     var steps = [];//шаги
     var formSerialize = [];
     var config = {
         object: this,
         idForm: "form",
+        form: $('form'),
         stepsContainer: "wizard-container",
         stepClass: "wizard-step-container",
         buttons: {
@@ -30,19 +47,13 @@ var WizardModule = (function () {
             submit: {
                 html: {
                     id: "wizard-submit-step",
-                    class: "ui large green submit button wizard-step-button",
+                    class: "ui large submit button blue wizard-step-button",
                     text: "Сохранить",
                     type: "submit"
                 }
             }
         },
-        callable: {
-            beforeConstruct: null,
-            beforeInit: null,
-            afterInit: null,
-            beforeNextStep: null,
-            afterNextStep: null
-        }
+        callable: {}
     };
     var _showStep = function () {
         $(document).find('.' + config.stepClass).css({"display": "none"});
@@ -65,17 +76,19 @@ var WizardModule = (function () {
         var html = startTag + stepsContainer + endTag;
         $(document).find('#' + config.stepsContainer).html(html);
     };
-    var _next = function () {
-        var callableBefore = _utils.apply(config.callable.beforeNextStep, arguments);
-        if (!callableBefore) return false;
-        ++cursor;
-        _renderButtons();
-        _changeStep();
+    var _nextStep = function () {
+        _registerEvent('NextStep', this, function () {
+            ++cursor;
+            _renderButtons();
+            _changeStep();
+        });
     };
-    var _prev = function () {
-        --cursor;
-        _renderButtons();
-        _changeStep();
+    var _prevStep = function () {
+        _registerEvent('PrevStep', this, function () {
+            --cursor;
+            _renderButtons();
+            _changeStep();
+        });
     };
     //Шаг вперед или назад
     var _changeStep = function () {
@@ -88,7 +101,7 @@ var WizardModule = (function () {
             $('<button type="' + config.buttons.prev.html.type
             + '" id="' + config.buttons.prev.html.id
             + '" class="' + config.buttons.prev.html.class
-            + '">' +config.buttons.prev.html.text + '</button>');
+            + '">' + config.buttons.prev.html.text + '</button>');
 
         var $nextBtn =
             $('<button type="' + (config.buttons.next.html.type)
@@ -137,6 +150,7 @@ var WizardModule = (function () {
     };
     var setUp = function (cfg) {
         $.extend(config, cfg);
+        config.form = $('#' + config.idForm);
         _loadStepsItems();
         return this;
     };
@@ -146,18 +160,21 @@ var WizardModule = (function () {
      * */
     var WizardModule = function (cfg) {
         setUp(cfg);
+        _registerEventList();
     };
     var _registerEventList = function () {
-        $(document).on("click", '#' + (config.buttons.next.html.id), _next);
-        $(document).on("click", '#' + (config.buttons.prev.html.id), _prev);
+        $.each(_events, function (index, event) {
+            config.form.on(_events[event], config.callable[event]);
+        });
+        $(document).on("click", '#' + (config.buttons.next.html.id), _nextStep);
+        $(document).on("click", '#' + (config.buttons.prev.html.id), _prevStep);
     };
-    var _utils = {
-        apply: function (callable, arguments) {
-            if (typeof callable == 'function') {
-                return callable.apply(this, arguments);
-            }
-            return true;
-        }
+    var _registerEvent = function (name, obj, callable) {
+        var beforeName = "before" + name;
+        var afterName = "after" + name;
+        config.form.trigger(_events[beforeName], [obj]);
+        callable();
+        config.form.trigger(_events[afterName], [obj]);
     };
     WizardModule.prototype = {
         constructor: WizardModule,
@@ -170,11 +187,17 @@ var WizardModule = (function () {
         get serialize() {
             return _serialize();
         },
+        set serialize(val) {
+            formSerialize = val;
+        },
+        get cursor() {
+            return cursor;
+        },
         init: function () {
-            _utils.apply(config.callable.beforeInit, arguments);
-            _registerEventList();
-            _renderStepBlock();
-            _showStep();
+            _registerEvent('Init', this, function () {
+                _renderStepBlock();
+                _showStep();
+            });
         }
     };
     return WizardModule;
