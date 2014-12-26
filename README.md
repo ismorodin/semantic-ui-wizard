@@ -1,6 +1,6 @@
 #Wizard for Semantic-UI > 1.0#
 ==================
-![](http://cs14107.vk.me/c624329/v624329723/10d3e/-M76GIYHCvI.jpg =250x)
+![](http://cs14107.vk.me/c624329/v624329723/10d3e/-M76GIYHCvI.jpg)
 ##How use:##
 ```
 $(function () {
